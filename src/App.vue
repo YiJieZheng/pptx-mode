@@ -143,7 +143,7 @@ onMounted(() => {
             const text = getTextFromHtml(i.content);
             // 样式集合
             const styleSet = extractInlineStylesFromHtml(i.content)
-            console.log('文字样式：', styleSet[0]['color'])
+            // console.log('文字样式：', styleSet[0]['color'])
             // 文本配置
             const options = {
               x: i.left * 0.75, //横坐标
@@ -166,16 +166,21 @@ onMounted(() => {
               y: i.top * 0.75, //纵坐标
               w: i.width * 0.75, //宽度
               h: i.height * 0.75, //高度 
-
               shapeName: i.shapType,
               rotate: i.rotate,
-              rectRadius: 5,
+              // shape: i.shapType,
+              rectRadius: 0.5, // 设置圆角的大小，这里设置为矩形宽度和高度的 20%
+              // stroke: { color: 'blue', width: 2 }, // 设置边框颜色为蓝色，宽度为 2
               fill: {
                 type: i.borderType,
-                color: getColor(i.fillColor),
-                transparency:0
+                color: i.fillColor === '' ? '' : getColor(i.fillColor),
+                transparency: i.fillColor === '' ? 100 : 0
               },
-              line: { color: getColor(i.borderColor), width: i.borderWidth },
+              line: {
+                color: i.borderColor == '' ? '' : getColor(i.borderColor),
+                transparency: i.borderWidth === 0 && i.fillColor !== '' ? 100 : 0,
+                width: i.borderWidth
+              },
             };
             slide.addShape(pptx.ShapeType.rect, options);
           }
