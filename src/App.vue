@@ -112,14 +112,31 @@ onMounted(() => {
       console.log("json", json);
       json.slides.forEach((v, j) => {
         var slide = pptx.addSlide();
+        if (v.fill.type == 'image' && v.fill.value.picBase64) {
+          slide.addImage({
+            data: v.fill.value.picBase64,
+            // type: 'jpeg', // 根据你的图片类型指定，例如'jpeg'、'png'等
+            x: 0,
+            y: 0,
+            w: '100%',
+            h: '100%',
+            sizing: {
+              type: 'cover',
+              x: 0,
+              y: 0,
+              w: '100%',
+              h: '100%',
+            } // 设置图片填充方式为覆盖整个幻灯片
+          });
+        }
         v.elements.forEach((i) => {
           if (i.type == "image") {
             slide.addImage({
-              x: i.left,
-              y: i.top,
-              h: i.height,
-              w: i.width,
-              data: i.src,
+              x: i.left * 0.75,
+              y: i.top * 0.75,
+              h: i.height * 0.75,
+              w: i.width * 0.75,
+              path: i.src,
             });
           } else if (i.type == "text") {
             // 插入的文本
@@ -129,12 +146,12 @@ onMounted(() => {
             console.log('文字样式：', styleSet[0]['color'])
             // 文本配置
             const options = {
-              x: i.left*0.75, //横坐标
-              y: i.top*0.75, //纵坐标
+              x: i.left * 0.75, //横坐标
+              y: i.top * 0.75, //纵坐标
               w: i.width, //宽度
               h: i.height, //高度
               fontFace: styleSet[0]['font-family'], //字体
-              fontSize: styleSet[0]['font-size']*0.75, //字号
+              fontSize: styleSet[0]['font-size'] * 0.75, //字号
               color: styleSet[0]['color'] ? textColo(styleSet[0]['color']) : '', //颜色 与背景颜色一样，一样不要 #，填满6位
               bold: styleSet[0]['font-weight'] !== '' ? true : false, //是否加粗
               // align: "center", //左右居中 可选值 left align right
@@ -143,18 +160,20 @@ onMounted(() => {
               // isTextBox: true, //是否文字盒子（额，目前暂时不怎么用到）
             };
             slide.addText(text, options);
-          } else if (i.type == "shape" && i.shapType == "roundRect") {
+          } else if (i.type == "shape") {
             const options = {
-              x: i.left, //横坐标
-              y: i.top, //纵坐标
-              w: i.width, //宽度
-              h: i.height, //高度
+              x: i.left * 0.75, //横坐标
+              y: i.top * 0.75, //纵坐标
+              w: i.width * 0.75, //宽度
+              h: i.height * 0.75, //高度 
+
               shapeName: i.shapType,
               rotate: i.rotate,
-              rectRadius: i.rectRadius,
+              rectRadius: 5,
               fill: {
                 type: i.borderType,
-                color: getColor(i.fillColor)
+                color: getColor(i.fillColor),
+                transparency:0
               },
               line: { color: getColor(i.borderColor), width: i.borderWidth },
             };
@@ -165,11 +184,6 @@ onMounted(() => {
       // 保存PPTX文件
       const filePath = "output.pptx";
       pptx.writeFile({ fileName: filePath }).then(() => { });
-      // var req = new model.CellsWorkbook_PutConvertWorkbookRequest({
-      //   workbook: fs.createReadStream(localPath + json),
-      //   format: "HTML",
-      // });
-      // console.log(req)
     };
     reader.readAsArrayBuffer(file);
   });
